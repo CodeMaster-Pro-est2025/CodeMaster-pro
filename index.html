@@ -6,6 +6,8 @@
     <title>CodeMaster Pro - Professional Coding Courses</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- PayPal SDK -->
+    <script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 </head>
 <body>
     <!-- Header -->
@@ -60,7 +62,7 @@
                     <h1 class="hero-title">Master Coding Skills with Industry Experts</h1>
                     <p class="hero-subtitle">Join thousands of students learning cutting-edge programming technologies through hands-on projects and personalized mentorship.</p>
                     <div class="hero-actions">
-                        <button class="btn btn-primary btn-large">Explore Courses</button>
+                        <button class="btn btn-primary btn-large" onclick="scrollToSection('courses')">Explore Courses</button>
                         <button class="btn btn-secondary btn-large">Watch Demo</button>
                     </div>
                     <div class="hero-stats">
@@ -108,7 +110,10 @@
                         </div>
                         <div class="course-footer">
                             <span class="course-price">$299</span>
-                            <button class="btn btn-outline">Learn More</button>
+                            <div class="course-actions">
+                                <button class="btn btn-outline course-info-btn" onclick="showCourseDetails('fullstack')">Learn More</button>
+                                <div class="paypal-button" id="paypal-fullstack" data-course="fullstack" data-price="299"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -126,7 +131,10 @@
                         </div>
                         <div class="course-footer">
                             <span class="course-price">$249</span>
-                            <button class="btn btn-outline">Learn More</button>
+                            <div class="course-actions">
+                                <button class="btn btn-outline course-info-btn" onclick="showCourseDetails('datascience')">Learn More</button>
+                                <div class="paypal-button" id="paypal-datascience" data-course="datascience" data-price="249"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -144,7 +152,10 @@
                         </div>
                         <div class="course-footer">
                             <span class="course-price">$349</span>
-                            <button class="btn btn-outline">Learn More</button>
+                            <div class="course-actions">
+                                <button class="btn btn-outline course-info-btn" onclick="showCourseDetails('mobile')">Learn More</button>
+                                <div class="paypal-button" id="paypal-mobile" data-course="mobile" data-price="349"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -163,13 +174,24 @@
                         </div>
                         <div class="course-footer">
                             <span class="course-price">$199</span>
-                            <button class="btn btn-outline">Learn More</button>
+                            <div class="course-actions">
+                                <button class="btn btn-outline course-info-btn" onclick="showCourseDetails('devops')">Learn More</button>
+                                <div class="paypal-button" id="paypal-devops" data-course="devops" data-price="199"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Course Details Modal -->
+    <div id="courseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCourseModal()">&times;</span>
+            <div id="courseDetails"></div>
+        </div>
+    </div>
 
     <!-- About Section -->
     <section id="about" class="about">
@@ -518,6 +540,78 @@
     </footer>
 
     <script>
+        // Course data
+        const courseData = {
+            fullstack: {
+                title: "Full Stack Web Development",
+                price: 299,
+                duration: "12 weeks",
+                level: "Beginner to Advanced",
+                description: "Master React, Node.js, MongoDB, and modern web technologies with real-world projects.",
+                features: [
+                    "React & Redux fundamentals",
+                    "Node.js & Express backend development",
+                    "MongoDB database design",
+                    "RESTful API development",
+                    "Authentication & authorization",
+                    "Deployment with AWS/Heroku",
+                    "Real-world project portfolio",
+                    "1-on-1 mentorship sessions"
+                ]
+            },
+            datascience: {
+                title: "Python Data Science",
+                price: 249,
+                duration: "10 weeks",
+                level: "Intermediate",
+                description: "Learn data analysis, machine learning, and visualization with Python, Pandas, and Scikit-learn.",
+                features: [
+                    "Python programming fundamentals",
+                    "Data manipulation with Pandas",
+                    "Data visualization with Matplotlib & Seaborn",
+                    "Statistical analysis techniques",
+                    "Machine learning with Scikit-learn",
+                    "Deep learning introduction",
+                    "Real datasets and projects",
+                    "Industry case studies"
+                ]
+            },
+            mobile: {
+                title: "Mobile App Development",
+                price: 349,
+                duration: "14 weeks",
+                level: "Intermediate",
+                description: "Build native iOS and Android apps using React Native and Flutter frameworks.",
+                features: [
+                    "React Native fundamentals",
+                    "Flutter development",
+                    "Native iOS development basics",
+                    "Android development essentials",
+                    "Mobile UI/UX design principles",
+                    "App store deployment",
+                    "Push notifications & APIs",
+                    "Performance optimization"
+                ]
+            },
+            devops: {
+                title: "DevOps & Cloud Computing",
+                price: 199,
+                duration: "8 weeks",
+                level: "Advanced",
+                description: "Master AWS, Docker, Kubernetes, and CI/CD pipelines for modern software deployment.",
+                features: [
+                    "AWS cloud services",
+                    "Docker containerization",
+                    "Kubernetes orchestration",
+                    "CI/CD pipeline setup",
+                    "Infrastructure as Code",
+                    "Monitoring & logging",
+                    "Security best practices",
+                    "Hands-on lab exercises"
+                ]
+            }
+        };
+
         // Mobile menu toggle
         const mobileMenuToggle = document.getElementById('mobileMenuToggle');
         const mobileNav = document.getElementById('mobileNav');
@@ -552,6 +646,114 @@
             } else {
                 header.classList.remove('scrolled');
             }
+        });
+
+        // Scroll to section function
+        function scrollToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        }
+
+        // Course details modal
+        function showCourseDetails(courseId) {
+            const course = courseData[courseId];
+            if (!course) return;
+
+            const modalContent = `
+                <h2>${course.title}</h2>
+                <div class="course-modal-info">
+                    <div class="course-modal-meta">
+                        <span class="course-modal-price">$${course.price}</span>
+                        <span class="course-modal-duration">${course.duration}</span>
+                        <span class="course-modal-level">${course.level}</span>
+                    </div>
+                    <p class="course-modal-description">${course.description}</p>
+                    <h3>What You'll Learn:</h3>
+                    <ul class="course-features-list">
+                        ${course.features.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                    <div class="course-modal-actions">
+                        <div class="paypal-button-modal" id="paypal-modal-${courseId}" data-course="${courseId}" data-price="${course.price}"></div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('courseDetails').innerHTML = modalContent;
+            document.getElementById('courseModal').style.display = 'block';
+
+            // Initialize PayPal button for modal
+            initializePayPalButton(`paypal-modal-${courseId}`, course.title, course.price);
+        }
+
+        function closeCourseModal() {
+            document.getElementById('courseModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('courseModal');
+            if (event.target === modal) {
+                closeCourseModal();
+            }
+        });
+
+        // PayPal integration
+        function initializePayPalButton(containerId, courseName, price) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            // Clear existing content
+            container.innerHTML = '';
+
+            paypal.Buttons({
+                createOrder: function(data, actions) {
+                    return actions.order.create({
+                        purchase_units: [{
+                            amount: {
+                                value: price.toString()
+                            },
+                            description: courseName
+                        }]
+                    });
+                },
+                onApprove: function(data, actions) {
+                    return actions.order.capture().then(function(details) {
+                        // Show success message
+                        alert('Payment successful! Welcome to ' + courseName + '! You will receive course access details via email.');
+                        
+                        // Here you would typically:
+                        // 1. Send payment details to your server
+                        // 2. Grant course access to the user
+                        // 3. Send confirmation email
+                        
+                        console.log('Payment completed:', details);
+                        
+                        // Close modal if it's open
+                        closeCourseModal();
+                    });
+                },
+                onError: function(err) {
+                    console.error('PayPal error:', err);
+                    alert('Payment failed. Please try again.');
+                },
+                onCancel: function(data) {
+                    console.log('Payment cancelled:', data);
+                }
+            }).render('#' + containerId);
+        }
+
+        // Initialize PayPal buttons when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize PayPal buttons for each course
+            Object.keys(courseData).forEach(courseId => {
+                const course = courseData[courseId];
+                initializePayPalButton(`paypal-${courseId}`, course.title, course.price);
+            });
         });
 
         // Form submission
